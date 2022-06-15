@@ -2,7 +2,17 @@
 <html>
 
 <head>
-    <Title>Receipts</Title>
+    <Title>Expenses</Title>
+    <nav>
+        <ul>
+            {% if user.is_authenticated is False %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+            {% else %}
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </nav>
 </head>
 
 <body>
