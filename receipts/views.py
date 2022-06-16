@@ -35,6 +35,18 @@ class ExpenseCategoryListView(LoginRequiredMixin, ListView):
         return ExpenseCategory.objects.filter(owner=self.request.user)
 
 
+class ExpenseCategoryCreateView(LoginRequiredMixin, CreateView):
+    model = ExpenseCategory
+    template_name = "expense_categories/create.html"
+    fields = ["name"]
+
+    def form_valid(self, form):
+        item = form.save(commit=False)
+        item.owner = self.request.user
+        item.save()
+        return redirect("list_categories")
+
+
 class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     template_name = "accounts/list.html"
