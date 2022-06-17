@@ -2,31 +2,10 @@ from django.views.generic import ListView, CreateView
 from receipts.models import Account, ExpenseCategory, Receipt
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
+from receipts.forms import CreateReceiptForm
 
 
 # Create your views here.
-
-
-class ReceiptListView(LoginRequiredMixin, ListView):
-    model = Receipt
-    template_name = "receipts/list.html"
-
-    def get_queryset(self):
-        return Receipt.objects.filter(purchaser=self.request.user)
-
-
-class ReceiptCreateView(LoginRequiredMixin, CreateView):
-    model = Receipt
-    template_name = "receipts/create.html"
-    fields = ["vendor", "total", "tax", "date", "category", "account"]
-
-    def form_valid(self, form):
-        item = form.save(commit=False)
-        item.purchaser = self.request.user
-        item.save()
-        return redirect("home")
-
-
 class ExpenseCategoryListView(LoginRequiredMixin, ListView):
     model = ExpenseCategory
     template_name = "expense_categories/list.html"
@@ -65,3 +44,28 @@ class AccountCreateView(LoginRequiredMixin, CreateView):
         item.owner = self.request.user
         item.save()
         return redirect("list_accounts")
+
+
+class ReceiptListView(LoginRequiredMixin, ListView):
+    model = Receipt
+    template_name = "receipts/list.html"
+
+    def get_queryset(self):
+        return Receipt.objects.filter(purchaser=self.request.user)
+
+
+class ReceiptCreateView(LoginRequiredMixin, CreateView):
+    model = Receipt
+    template_name = "receipts/create.html"
+    form_class = CreateReceiptForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ReceiptCreateView, self).get_form_kwargs()
+        kwargs.update({"user": self.request.user})
+        return kwargs
+
+    def form_valid(self, form):
+        item = form.save(commit=False)
+        item.purchaser = self.request.user
+        item.save()
+        return redirect("home")
